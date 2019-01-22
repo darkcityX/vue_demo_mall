@@ -44,34 +44,35 @@
                         <div class="recommend-item">
                                 <img :src="item.image" width="80%" />
                                 <div>{{item.goodsName}}</div>
-                                <div>￥{{item.price}} (￥{{item.mallPrice}})</div>
+                                <div>￥{{item.price | moneyFilter}} (￥{{item.mallPrice | moneyFilter }})</div>
                         </div>
                     </swiper-slide>
                 </swiper>
             </div>
         </div> 
 
-        <!--floor one area-->
-        <div class="floor">
-            
-            <div class="floor-title">
-                <span>1F</span><span>休闲食品</span>
-            </div>
+        <!--楼层模块-->
+        <!-- 1、楼层1 -->
+        <FloorComponent :floorData="floor1" :floorTitle="floorTitle.floor1" :index="1"></FloorComponent>
+        <!-- 2、楼层2 -->
+        <FloorComponent :floorData="floor2" :floorTitle="floorTitle.floor2" :index="2"></FloorComponent>
+        <!-- 3、楼层3 -->
+        <FloorComponent :floorData="floor3" :floorTitle="floorTitle.floor3" :index="3"></FloorComponent>               
 
-            <div class="floor-anomaly">
-                <div class="floor-one"><img :src="floor1_0.image" width="100%" /></div>
-                <div>
-                    <div class="floor-two"><img :src="floor1_1.image" width="100%" /></div>
-                    <div><img :src="floor1_2.image" width="100%" /></div>
-                </div>
+        <!--Hot Area-->
+        <div class="hot-area">
+            <div class="hot-title">热卖商品</div>
+            <div class="hot-goods">
+            <!--这里需要一个list组件-->
+                <!-- <GoodsInfoComponent :goodsInfoData="hotGoods"></GoodsInfoComponent> -->
+                <van-list>
+                    <van-row >
+                        <van-col span="12" v-for="(item,index) in hotGoods" :key="index">
+                            <GoodsInfoComponent :goodImgUrl="item.image" :goodName="item.name" :goodPrice="item.price"></GoodsInfoComponent>
+                        </van-col>
+                    </van-row>
+                </van-list>
             </div>
-
-            <div class="floor-rule">
-                <div v-for="(item ,index) in floor1.slice(3)" :key="index">
-                    <img :src="item.image" width="100%"/>
-                </div>
-            </div>
-
         </div>
 
     </div>
@@ -79,9 +80,17 @@
 
 <script>
     import axios from 'axios';
+    import Url from '@/serviceAPI.config.js'
 
     import 'swiper/dist/css/swiper.css'
     import { swiper, swiperSlide } from 'vue-awesome-swiper'
+
+    import FloorComponent from '../component/FloorComponent.vue'
+    import GoodsInfoComponent from '../component/GoodsInfoComponent'
+
+    import {toMoney} from '@/filter/moneyFilter.js'
+
+
 
     export default {
         data() {
@@ -99,50 +108,59 @@
                 recommendGoods:[],
 
                 // 楼层
+                floorTitle: [],
                 floor1: [],
-                floor1_0: [], 
-                floor1_1: [],
-                floor1_2: [],
-
                 floor2: [],
                 floor3: [],
 
+                // 热销推荐
+                hotGoods:[] //热卖商品
             }   
         },
         components: {
             swiper,
             swiperSlide,
+            FloorComponent,
+            GoodsInfoComponent
+        },
+        filters:{
+            moneyFilter(money){
+                return toMoney(money);
+            }
         },
         created(){
-            axios.get('https://www.easy-mock.com/mock/5c417ba78ff5e33c8a227708/mall/index')
-                .then(
-                    res=>{
-                        if( res.status == "200"){
-                            console.log( res.data.data );
-                            // 轮播
-                            this.bannerPicArray = res.data.data.slides;
-                            // 小导航
-                            this.category = res.data.data.category;
-                            // 广告位
-                            this.adBanner = res.data.data.advertesPicture;
-                            // 推荐商品
-                            this.recommendGoods = res.data.data.recommend;
-                            // 楼层
-                            this.floor1 = res.data.data.floor1;
-                            this.floor1_0 =this.floor1[0];
-                            this.floor1_1 =this.floor1[1];
-                            this.floor1_2 =this.floor1[2];
+            axios({
+                url: Url.getShoppingMallIndexInfo,
+                method: 'get'
+            }).then(
+                res=>{
+                    if( res.status == "200" ){
+                        console.log( '--------------------' );
+                        console.log( res.data.data );
+                        // 轮播
+                        this.bannerPicArray = res.data.data.slides;
+                        // 小导航
+                        this.category = res.data.data.category;
+                        // 广告位
+                        this.adBanner = res.data.data.advertesPicture;
+                        // 推荐商品
+                        this.recommendGoods = res.data.data.recommend;
+                        // 楼层
+                        this.floorTitle = res.data.data.floorName;
 
-                            this.floor2 = res.data.data.floor2;
-                            this.floor3 = res.data.data.floor3;
-
-                        }
-                    }
-                ).catch(
-                    err=>{
+                        this.floor1 = res.data.data.floor1;
+                        this.floor2 = res.data.data.floor2;
+                        this.floor3 = res.data.data.floor3;
+                        // 热卖推荐
+                        this.hotGoods = res.data.data.hotGoods;
 
                     }
-                )
+                }
+            ).catch(
+                err=>{
+
+                }
+            )
         }
     }
 </script>
@@ -220,52 +238,13 @@
         text-align: center;
     }
 
-    /* ---- 楼层1 ----- */
-    .floor-title{
-            margin-top: 0.5rem;
-            height: 2.2rem;
-            line-height: 2.2rem;
-            background: #e5e5e5;
+    /* ---- 热销推荐 ---- */
+    .hot-area{
+       text-align: center;
+       font-size:14px;
+       height: 1.8rem;
+       line-height:1.8rem;
     }
-    .floor-title span:first-child{
-        margin-right: 0.2rem;
-        color: #fff;
-        border-radius: 50%;
-        background-color:#CB4C2C;
-    }
-    .floor-anomaly{
-        display: flex;
-        flex-direction:row;
-        background-color: #fff;
-        border-bottom:1px solid #ddd;
-    }
-    .floor-anomaly div{
-        width:10rem;
-        box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-    }
-    .floor-one{
-        border-right:1px solid #ddd;
-    }
-    .floor-two{
-        border-bottom:1px solid #ddd;
-    }
-    .floor-rule{
-        display: flex;
-        flex-direction: row;
-        flex-wrap:wrap;
-        background-color: #fff;
-    }
-    .floor-rule div{
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-        width:10rem;
-        border-bottom:1px solid #ddd;
-    }
-    .floor-rule div:nth-child(odd){
-        border-right: 1px solid #ddd;
-    }
-
 </style>
 
 
