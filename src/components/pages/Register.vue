@@ -28,7 +28,9 @@
 
 <script>
     import axios from 'axios';
-    import Url from '@/serviceAPI.config.js'
+	import Url from '@/serviceAPI.config.js';
+	import { Toast } from 'vant'
+	
     export default {
         data(){
             return {
@@ -69,25 +71,63 @@
             },
             axiosRegisterUser(){
                 if( /[`~!@#$%^&*()+=|{}':;',.<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]/im.test(this.username) ){
-                    // Toast( "用户名中禁止包含特殊字符" );
                     Toast({
                         message : "用户名中禁止包含特殊字符",
                         type : "fail" ,
-                        mask : true,
-                        position : middle,
+                        mask : false,
+                        position : "middle",
                         forbidClick : true,
                         duration : 2000
                     });
-                }else if( this.username.replace(/\s/g,"") == "" ){
-                    alert("用户名不能为空");
-                }else if( this.password.replace(/\s/g,"") == "" ){
-                    alert("密码不能为空");
+                }else if( this.username.replace(/\s/g,"").length < 5 ){
+					Toast({
+                        message : "用户名不能小于5位",
+                        type : "fail" ,
+                        mask : false,
+                        position : "middle",
+                        forbidClick : true,
+                        duration : 2000
+                    });
+				}else if( this.username.replace(/\s/g,"") == "" ){
+					Toast({
+                        message : "用户名不能为空",
+                        type : "fail" ,
+                        mask : false,
+                        position : "middle",
+                        forbidClick : true,
+                        duration : 2000
+                    });
+                }else if( this.password.replace(/\s/g,"").length < 6 ){
+					Toast({
+                        message : "密码不能小于6位",
+                        type : "fail" ,
+                        mask : false,
+                        position : "middle",
+                        forbidClick : true,
+                        duration : 2000
+                    });					
+				}else if( this.password.replace(/\s/g,"") == "" ){
+                    Toast({
+                        message : "密码不能为空",
+                        type : "fail" ,
+                        mask : false,
+                        position : "middle",
+                        forbidClick : true,
+                        duration : 2000
+                    });
                 }else{
                     if( this.dataUserInfoListName.length > 0 ){
                         let sendLock = false;
                         for( let i = 0 ; i < this.dataUserInfoListName.length ; i++ ){
                             if( this.username.replace(/\s/g,"") == this.dataUserInfoListName[i].replace(/\s/g,"") ){
-                                alert( "用户名已注册" );
+                                Toast({
+									message : "用户名已经被注册了",
+									type : "fail" ,
+									mask : false,
+									position : "middle",
+									forbidClick : true,
+									duration : 2000
+								});
                                 return sendLock = false;
                             }else{
                                 sendLock = true;   
@@ -107,8 +147,19 @@
                                 // console.log( '--------发送注册请求---------' );
                                 // console.log(res);
                                 if( res.status == 200 ){
-                                    alert("注册成功");
-                                    this.$router.push('/index');
+                                    Toast({
+										message : "注册成功!3s后跳转...",
+										type : "success" ,
+										mask : false,
+										position : "middle",
+										forbidClick : true,
+										duration : 3000
+									});
+									const timer = setInterval(() => {
+										this.$router.push('/index');
+										clearInterval(timer);
+									}, 3000);
+                                    // this.$router.push('/index');
                                 }
                             })
                             .catch((err) => {
@@ -158,6 +209,9 @@
     .register-button{
         padding-top:10px;
     }
+	.van-toast__text{
+		text-align: center;
+	}
 </style>
 
 
