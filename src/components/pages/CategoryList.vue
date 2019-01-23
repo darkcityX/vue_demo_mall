@@ -37,7 +37,7 @@
                                         v-model="loading"
                                         :finished="finished"
                                         @load="onLoad(item.ID)">
-                                        <div class="list-item" v-for="item in list" :key="item">
+                                        <div class="list-item" v-for="(item,index) in list" :key="index">
                                             <!-- {{item}} -->
 											<!-- <img :src="item.IMAGE1" alt="">
 											<div class="list-item-info">
@@ -82,6 +82,7 @@
                 active : 0,         // 默认选定的二级标题
 
 				GoodsID: "",
+				dataList: [],
                 list: [],
                 loading:false,   //上拉加载使用
                 finished:false,  //下拉加载是否没有数据了
@@ -182,10 +183,25 @@
 							if( res.status == "200" ){
 								for( let obj in res.data ){
 									if( GoodsID == res.data[obj].SUB_ID ){
-										this.list.push( res.data[obj] );
+										this.dataList.push( res.data[obj] );
 									}
 								}
-								console.log( this.list );
+								console.log( "初次加载完成dataList的长度："+this.dataList.length );
+								setTimeout(()=>{
+									for( let i = 0 ; i < 2 ; i++ ){
+										this.list.push( this.dataList[this.list.length+1] );
+									}
+									console.log( "循环加载完成dataList的长度："+this.dataList.length );
+									this.loading = false;
+									console.log( "321321321313" );
+									console.log( "此时dataList的长度为："+this.dataList.length );
+									console.log( "此时list的长度为："+this.list.length );
+									console.log( this.list.length >= this.dataList.length  );
+									if (this.list.length >= this.dataList.length ) {
+										this.finished = true;
+									}
+									console.log( this.list.length );
+								},500);								
 							}
 						}
 					)
@@ -194,15 +210,7 @@
 							console.log("服务器报错，数据未请求");
 						}
 					)
-                    // for( let i = 0 ; i < 10 ; i++ ){
-                    //     this.list.push( this.list.length+1 );
-                    // }
-                    // this.loading=false;
-                    // if (this.list.length >= 40) {
-                    //     this.finished = true;
-                    // }
-                    // console.log( this.list.length );
-                // },500);
+
             },
             onRefresh(){ // 下拉更新
                 setTimeout(() => {
