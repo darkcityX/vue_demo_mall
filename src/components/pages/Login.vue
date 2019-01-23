@@ -51,7 +51,7 @@
 			}
 		},
         created: function(){
-                console.log(localStorage.userInfo.length);
+                // console.log(localStorage.userInfo.length);
                 if( localStorage.userInfo != undefined ){
                     Toast({
 						message : "你已登陆啦！",

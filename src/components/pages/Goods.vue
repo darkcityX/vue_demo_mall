@@ -6,7 +6,7 @@
                 title="商品详情页"
                 left-text="返回"
                 left-arrow
-                @click="onClickLeft"/>
+                @click-left="onClickLeft"/>
         </div>
         
         <!-- 2、大图展示 -->
@@ -95,7 +95,7 @@
 
                 })
                 .catch(err=>{
-
+					console.log("数据请求失败");
                 })
             },
             onClickLeft(){
