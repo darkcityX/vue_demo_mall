@@ -68,7 +68,7 @@
                 <van-list>
                     <van-row >
                         <van-col span="12" v-for="(item,index) in hotGoods" :key="index">
-                            <GoodsInfoComponent :goodImgUrl="item.image" :goodName="item.name" :goodPrice="item.price"></GoodsInfoComponent>
+                            <GoodsInfoComponent :goodsId="item.goodsId" :goodImgUrl="item.image" :goodName="item.name" :goodPrice="item.price"></GoodsInfoComponent>
                         </van-col>
                     </van-row>
                 </van-list>
@@ -136,23 +136,23 @@
                 res=>{
                     if( res.status == "200" ){
                         console.log( '--------------------' );
-                        console.log( res.data.data );
+                        console.log( res.data);
                         // 轮播
-                        this.bannerPicArray = res.data.data.slides;
+                        this.bannerPicArray = res.data.slides;
                         // 小导航
-                        this.category = res.data.data.category;
+                        this.category = res.data.category;
                         // 广告位
-                        this.adBanner = res.data.data.advertesPicture;
+                        this.adBanner = res.data.advertesPicture;
                         // 推荐商品
-                        this.recommendGoods = res.data.data.recommend;
+                        this.recommendGoods = res.data.recommend;
                         // 楼层
-                        this.floorTitle = res.data.data.floorName;
+                        this.floorTitle = res.data.floorName;
 
-                        this.floor1 = res.data.data.floor1;
-                        this.floor2 = res.data.data.floor2;
-                        this.floor3 = res.data.data.floor3;
+                        this.floor1 = res.data.floor1;
+                        this.floor2 = res.data.floor2;
+                        this.floor3 = res.data.floor3;
                         // 热卖推荐
-                        this.hotGoods = res.data.data.hotGoods;
+                        this.hotGoods = res.data.hotGoods;
 
                     }
                 }

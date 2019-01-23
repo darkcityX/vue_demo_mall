@@ -6,7 +6,7 @@
             * goodName：
             * goodPrice：
     -->
-    <div class="hot-goods-info">
+    <div class="hot-goods-info" @click="goGoodsPage()">
         <div class="goods-image">
             <img v-lazy="goodImgUrl" width="90%" />
         </div>
@@ -24,13 +24,23 @@
                 
             }
         },
-        props: ['goodImgUrl','goodName','goodPrice'],
+        props: ['goodsId','goodImgUrl','goodName','goodPrice'],
         watch: {
 
         },
         filters: {
             moneyFilter(money){
                 return toMoney(money);
+            }
+        },
+        methods: {
+            goGoodsPage(){
+                this.$router.push({
+                    path: '/goods',
+                    query:{
+                        goodsId:this.goodsId
+                    }
+                })
             }
         }
     }

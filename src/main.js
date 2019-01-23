@@ -27,8 +27,8 @@ import router from './router'
     ]
  * 
  *  */
-import { Button , Row , Col , Swipe , SwipeItem , Lazyload , List , Field , NavBar } from 'vant';
-Vue.use(Button).use(Row).use(Col).use(Swipe).use(SwipeItem).use(Lazyload).use(List).use(Field).use(NavBar);
+import { Button , Row , Col , Swipe , SwipeItem , Lazyload , List , Field , NavBar , Tab , Tabs , PullRefresh } from 'vant';
+Vue.use(Button).use(Row).use(Col).use(Swipe).use(SwipeItem).use(Lazyload).use(List).use(Field).use(NavBar).use(Tab).use(Tabs).use(PullRefresh);
 
 /**
  * vue-awesome-swiper   npm install vue-awesome-swiper --save

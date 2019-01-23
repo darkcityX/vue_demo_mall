@@ -43,7 +43,7 @@
         created: function(){
                 //
                 axios({
-                    url: 'https://wd6518844382ndemtb.wilddogio.com/userInfo.json',
+                    url: Url.getUserInfo,
                     method: 'get',
                 })
                 .then(res=> {
@@ -136,7 +136,7 @@
                         if( sendLock ){
                             // console.log("锁已开！！！");
                             axios({
-                                url: 'https://wd6518844382ndemtb.wilddogio.com/userInfo.json',
+                                url: Url.getUserInfo,
                                 method: 'post',
                                 data:{
                                     username:this.username,
@@ -156,7 +156,7 @@
 										duration : 3000
 									});
 									const timer = setInterval(() => {
-										this.$router.push('/index');
+										this.$router.push('/login');
 										clearInterval(timer);
 									}, 3000);
                                     // this.$router.push('/index');
@@ -171,7 +171,7 @@
                         console.log("分支2");
                         // 发送注册请求
                         axios({
-                            url: 'https://wd6518844382ndemtb.wilddogio.com/userInfo.json',
+                            url: Url.getUserInfo,
                             method: 'post',
                             data:{
                                 username:this.username,
@@ -182,8 +182,18 @@
                             // console.log( '--------发送注册请求---------' );
                             // console.log(res);
                             if( res.status == 200 ){
-                                alert("注册成功");
-                                this.$router.push('/index');
+                                Toast({
+								    message : "注册成功!3s后跳转...",
+									type : "success" ,
+									mask : false,
+									position : "middle",
+									forbidClick : true,
+									duration : 3000
+								});
+								const timer = setInterval(() => {
+									this.$router.push('/login');
+									clearInterval(timer);
+								}, 3000);
                             }
                         })
                         .catch((err) => {

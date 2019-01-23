@@ -51,9 +51,25 @@
 			}
 		},
         created: function(){
-                //
+                console.log(localStorage.userInfo.length);
+                if( localStorage.userInfo != undefined ){
+                    Toast({
+						message : "你已登陆啦！",
+						type : "success" ,
+						mask : false,
+						position : "middle",
+						forbidClick : true,
+						duration : 3000
+                    });
+					const timer = setInterval(() => {
+                        this.$router.push('/index');
+						clearInterval(timer);
+					}, 3000);                    
+                }
+
+                // mok模拟数据：将数据库中的数据取出来放在dataUserInfoListName中【！十分危险】
                 axios({
-                    url: 'https://wd6518844382ndemtb.wilddogio.com/userInfo.json',
+                    url: Url.getUserInfo,
                     method: 'get',
                 })
                 .then(res=> {
@@ -93,7 +109,7 @@
 					// console.log( "当前输入的用户名："+ this.username );
 					// console.log( "当前输入的密  码："+ this.password );
 					axios({
-						url: 'https://wd6518844382ndemtb.wilddogio.com/userInfo.json',
+						url: Url.getUserInfo,
                         method: 'get',
 					})
 					.then(res=>{
@@ -106,7 +122,7 @@
 							}else if( this.username.replace(/\s/g,"") == this.dataUserInfoListName[i].username && this.password.replace(/\s/g,"") != this.dataUserInfoListName[i].password ){
 								// alert("用户名正确，密码错误");
 								loginUsernameErrorMsg = true;
-							}else if( this.username.replace(/\s/g,"") != this.dataUserInfoListName[i].username ){
+							}else if( this.username.replace(/\s/g,"") != this.dataUserInfoListName[i].username && this.password.replace(/\s/g,"") != this.dataUserInfoListName[i].password){
 								// alert("用户名错误");
 								loginPasswordErrorMsg = true;
 							}
@@ -122,11 +138,15 @@
 								duration : 3000
 							});
 							const timer = setInterval(() => {
+                                // 关锁
+                                loginLock = false;
+                                // 保存本地登陆状态
+                                localStorage.userInfo={userName:this.username};
+                                // 成功后跳转首页
 								this.$router.push('/index');
 								clearInterval(timer);
 							}, 3000);	
-						}
-						if( loginUsernameErrorMsg ){
+						}else if( loginUsernameErrorMsg ){
 							// alert( "22222222222222222222" );
 							Toast({
 								message : "密码错误，请重新输入",
@@ -137,14 +157,14 @@
 								duration : 3000
 							});
 							const timer = setInterval(() => {
+                                loginUsernameErrorMsg = false;
 								this.openLoading = false;
 								clearInterval(timer);
 							}, 3000);
-						}							
-						if( loginPasswordErrorMsg ){
+						}else if( loginPasswordErrorMsg ){
 							// alert( "333333333333333333" );
 							Toast({
-								message : "用户名错误，请重新输入",
+								message : "该用户名不存在，请注册",
 								type : "fail" ,
 								mask : false,
 								position : "middle",
@@ -152,6 +172,7 @@
 								duration : 3000
 							});
 							const timer = setInterval(() => {
+                                loginPasswordErrorMsg = false;
 								this.openLoading = false;
 								clearInterval(timer);
 							}, 3000);								
