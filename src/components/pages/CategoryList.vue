@@ -26,23 +26,14 @@
             <!-- 3、右侧列表 -->
             <van-col span="18">
                 <div class="tabCategorySub">
-                    <van-tabs v-model="active" animated>
+                    <van-tabs v-model="active" animated @click="loadData">
                         <van-tab v-for="(item, index) in categorySub" :key="index" 
                             :title="item.MALL_SUB_NAME">
                             <!-- 内容{{index}} -->
-
                             <div id="list-div">
                                 <van-pull-refresh v-model="isRefresh" @refresh="onRefresh">
-                                    <van-list
-                                        v-model="loading"
-                                        :finished="finished"
-                                        @load="onLoad(item.ID)">
+                                    <van-list>
                                         <div class="list-item" v-for="(item,index) in list" :key="index">
-                                            <!-- {{item}} -->
-											<!-- <img :src="item.IMAGE1" alt="">
-											<div class="list-item-info">
-
-											</div> -->
 											<dl>
 												<dt>
 													<img :src="item.IMAGE1" alt="">
@@ -55,7 +46,7 @@
 													</p>
 												</dd>
 											</dl>
-                                        </div>
+                                        </div>                                     
                                     </van-list>
                                 </van-pull-refresh>
                             </div>
@@ -100,6 +91,9 @@
             
             // 调用二级大类接口调用方法
             this.clickCategory(0,1);
+
+            // 调用商品详情接口
+            this.getGoodsDetails();
         },
         mounted(){
             // console.log("---- 挂载后 ----");
@@ -127,9 +121,6 @@
                     // console.log( res ); 
                     if( res.status == "200" ){
 						this.category = res.data;
-						console.log( this.category );
-
-                        
                     }  
                 })
                 .catch(err=>{
@@ -147,20 +138,19 @@
             getCategorySub(categoryId){ // 二级菜单后端请求方法
                 this.categorySub = [];
                 this.active = 0;
-                console.log( "getCategorySub方法："+categoryId );
                 axios({
                     url:Url.getCategorySubList,
                     method:'get',
                 })
                 .then(res=>{
                     if( res.status == "200" ){
-						console.log( res.data );
-                        for( let obj in  res.data ){
+                        for( let obj in res.data ){
                             if( res.data[obj].MALL_CATEGORY_ID == categoryId ){
                                 this.categorySub.push( res.data[obj] );
                                 this.active = 0;
                             }
                         }
+                        console.log( this.categorySub );
                     }else{
                         Toast('服务器错误，数据取得失败')
                     }  
@@ -169,54 +159,80 @@
                     console.log(error)
                 }) 
             },
-			onLoad(GoodsID){  // 上拉加载
-				console.log( "二级菜单传进来的值为："+ GoodsID );
-				this.GoodsID = GoodsID;
-                // setTimeout(()=>{
-					axios({
-						url: Url.getListDetailsInfo,
-						methods: 'get'
-					})
-					.then(
-						res=>{
-							console.log( res );
-							if( res.status == "200" ){
-								for( let obj in res.data ){
-									if( GoodsID == res.data[obj].SUB_ID ){
-										this.dataList.push( res.data[obj] );
-									}
-								}
-								console.log( "初次加载完成dataList的长度："+this.dataList.length );
-								setTimeout(()=>{
-									for( let i = 0 ; i < 2 ; i++ ){
-										this.list.push( this.dataList[this.list.length+1] );
-									}
-									console.log( "循环加载完成dataList的长度："+this.dataList.length );
-									this.loading = false;
-									console.log( "321321321313" );
-									console.log( "此时dataList的长度为："+this.dataList.length );
-									console.log( "此时list的长度为："+this.list.length );
-									console.log( this.list.length >= this.dataList.length  );
-									if (this.list.length >= this.dataList.length ) {
-										this.finished = true;
-									}
-									console.log( this.list.length );
-								},500);								
-							}
-						}
-					)
-					.catch(
-						err=>{
-							console.log("服务器报错，数据未请求");
-						}
-					)
-
+            getGoodsDetails(){ // 调用商品详情接口
+                console.log( "调用商品详情接口" );
+                this.dataList = [];
+               	axios({
+					url: Url.getListDetailsInfo,
+					methods: 'get'
+                })
+			    .then(
+					res=>{
+						if( res.status == "200" ){
+							for( let obj in res.data ){
+								this.dataList.push( res.data[obj] );
+							}							
+                        }
+                        console.log( this.dataList );
+					}
+				)
+				.catch(
+					err=>{
+						console.log("服务器报错，数据未请求");
+					}
+				)                
             },
+            loadData(index,title){
+                // 数据初始化
+                this.list = [];
+                for( let obj in this.categorySub ){
+                    if( this.categorySub[obj].MALL_SUB_NAME == title ){
+                        this.GoodsID =  this.categorySub[obj].ID;
+                    }
+                }
+                console.log("------- 对比开始 ------");
+				for( let obj in this.dataList ){
+                    console.log("分类的ID----："+ this.GoodsID);
+                    console.log("目前的ID----："+ this.dataList[obj].SUB_ID );
+					if( this.GoodsID == this.dataList[obj].SUB_ID ){
+						this.list.push( this.dataList[obj] );
+					}
+				}							
+              
+            },
+            // onLoad(){  // 上拉加载
+            //     this.loading = true;
+            //     this.finished = false; 
+            //     if( this.dataList.length > 0 ){
+            //         setTimeout(()=>{
+            //             for( let i = 0 ; i < 5 ; i++ ){
+            //                 this.list.push( this.dataList[this.list.length+1] );
+            //             }
+            //             console.log( "循环加载完成dataList的长度："+this.dataList.length );
+            //             this.loading = false;
+            //             console.log( "321321321313" );
+            //             console.log( "此时dataList的长度为："+this.dataList.length );
+            //             console.log( "此时list的长度为："+this.list.length );
+            //             console.log( this.list.length >= this.dataList.length  );
+            //             if (this.list.length >= this.dataList.length ) {
+            //                 this.loading = false;
+            //                 this.finished = false;
+            //             }
+            //             console.log( this.list.length );
+            //         },500);		
+            //     }else{
+            //         this.loading = false;
+            //         this.finished = false;    
+            //     }
+	
+            // },
             onRefresh(){ // 下拉更新
                 setTimeout(() => {
                     this.isRefresh = false;
                     this.list=[];
-                    this.onLoad(this.GoodsID);
+                    
+                    // this.onLoad();
+                    this.getGoodsDetails();
                 }, 500);
             }
         }
