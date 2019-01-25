@@ -81,11 +81,8 @@
                 isRefresh:false, //下拉加载
             }  
         },
-        beforeCreate(){
-            // console.log("---- 创建前状态 ----");
-        },
         created(){
-            // console.log("---- 创建后状态 ----");
+            console.log("---- 创建后状态 ----");
             // 调用一级大类接口调用方法
             this.getCategory();   
             
@@ -93,21 +90,28 @@
             this.clickCategory(0,1);
 
             // 调用商品详情接口
-            this.getGoodsDetails();
+            this.getGoodsDetails(); // 这块方法改变的是dataList里面的值
+
+            console.log( this.dataList );
+
+           
+
+            
         },
         mounted(){
-            // console.log("---- 挂载后 ----");
+            console.log("---- 挂载后 ----");
             let winHeight = document.documentElement.clientHeight;
             document.getElementById("leftNav").style.height= winHeight-46 +'px';
             // console.log( document.getElementById('list-div') );
+            // document.getElementById('list-div').style.height=winHeight-130 +'px';
         },
-        updated(){
-            // console.log("---- 状态更新后----");
-            // console.log( document.getElementById('list-div') );
-            let winHeight = document.documentElement.clientHeight;
-            document.getElementById('list-div').style.height=winHeight-130 +'px';
+        // updated(){
+        //     // console.log("---- 状态更新后----");
+        //     // console.log( document.getElementById('list-div') );
+        //     let winHeight = document.documentElement.clientHeight;
+        //     document.getElementById('list-div').style.height=winHeight-130 +'px';
             
-        },
+        // },
         methods: {
             onClickLeft(){  // 顶部栏返回按钮
                 this.$router.go(-1);
@@ -120,7 +124,8 @@
                 .then(res=>{
                     // console.log( res ); 
                     if( res.status == "200" ){
-						this.category = res.data;
+                        
+                        this.category = res.data;                        
                     }  
                 })
                 .catch(err=>{
@@ -132,6 +137,7 @@
                 this.categoryIndex=index;
                 // 调用二级菜单后端接口请求函数
                 this.getCategorySub(categoryId);
+
 
                 
             },
@@ -150,7 +156,9 @@
                                 this.active = 0;
                             }
                         }
-                        console.log( this.categorySub );
+                        // console.log( this.categorySub );
+                        // 默认初始加载商品列表页
+                        this.loadData(0,this.categorySub[0].MALL_SUB_NAME);
                     }else{
                         Toast('服务器错误，数据取得失败')
                     }  
@@ -160,7 +168,7 @@
                 }) 
             },
             getGoodsDetails(){ // 调用商品详情接口
-                console.log( "调用商品详情接口" );
+                // console.log( "调用商品详情接口" );
                 this.dataList = [];
                	axios({
 					url: Url.getListDetailsInfo,
@@ -173,7 +181,8 @@
 								this.dataList.push( res.data[obj] );
 							}							
                         }
-                        console.log( this.dataList );
+                        // console.log( this.dataList );
+                        // 
 					}
 				)
 				.catch(
@@ -183,6 +192,7 @@
 				)                
             },
             loadData(index,title){
+                console.log( "----进入loadData函数----接收到的title值为："+title );
                 // 数据初始化
                 this.list = [];
                 for( let obj in this.categorySub ){
@@ -190,14 +200,19 @@
                         this.GoodsID =  this.categorySub[obj].ID;
                     }
                 }
-                console.log("------- 对比开始 ------");
+                console.log( this.GoodsID );
+                console.log(  this.dataList.length );
+                console.log( "---------------------------------" );
+                // console.log("------- 对比开始 ------");
 				for( let obj in this.dataList ){
+                    console.log( "进入循环" );
                     console.log("分类的ID----："+ this.GoodsID);
                     console.log("目前的ID----："+ this.dataList[obj].SUB_ID );
 					if( this.GoodsID == this.dataList[obj].SUB_ID ){
 						this.list.push( this.dataList[obj] );
 					}
-				}							
+                }
+                console.log( this.list );							
               
             },
             // onLoad(){  // 上拉加载
