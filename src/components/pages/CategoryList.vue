@@ -30,19 +30,19 @@
                         <van-tab v-for="(item, index) in categorySub" :key="index" 
                             :title="item.MALL_SUB_NAME">
                             <!-- 内容{{index}} -->
-                            <div id="list-div">
+                            <div id="listDiv">
                                 <van-pull-refresh v-model="isRefresh" @refresh="onRefresh">
                                     <van-list>
                                         <div class="list-item" v-for="(item,index) in list" :key="index">
-											<dl>
+											<dl @click="goDetails(item.ID)">
 												<dt>
-													<img :src="item.IMAGE1" alt="">
+													<img :src="item.IMAGE1" alt="" :onerror="errorImage">
 												</dt>
 												<dd>
 													<p class="itemName">{{item.NAME}}</p>
 													<p class="itemPrice">
-														<span>现价：￥{{item.ORI_PRICE}}</span>
-														<span>优惠价：￥{{item.PRESENT_PRICE}}</span>	
+														<span>现价:￥{{item.ORI_PRICE | monenyFilter}}</span>
+														<span>优惠价:￥{{item.PRESENT_PRICE | monenyFilter}}</span>	
 													</p>
 												</dd>
 											</dl>
@@ -63,6 +63,7 @@
 <script>
     import axios from 'axios';
     import Url from '@/serviceAPI.config.js';
+    import {toMoney} from '@/filter/moneyFilter.js';
     export default {
         data(){
             return {
@@ -71,6 +72,7 @@
 
                 categorySub : [],   // 二级大类列表
                 active : 0,         // 默认选定的二级标题
+                nowActive: 0,
 
 				GoodsID: "",
 				dataList: [],
@@ -79,10 +81,22 @@
                 finished:false,  //下拉加载是否没有数据了
 
                 isRefresh:false, //下拉加载
+
+                errorImage: 'this.src="' + require('@/assets/images/errorimg.png') + '"'
             }  
         },
+        watch:{
+            active: function(evl){
+                this.nowActive = evl;
+            }
+        },
+        filters: {
+            monenyFilter(money){
+                return toMoney(money);
+            }    
+        },
         created(){
-            console.log("---- 创建后状态 ----");
+            // console.log("---- 创建后状态 ----");
             // 调用一级大类接口调用方法
             this.getCategory();   
             
@@ -92,7 +106,7 @@
             // 调用商品详情接口
             this.getGoodsDetails(); // 这块方法改变的是dataList里面的值
 
-            console.log( this.dataList );
+            // console.log( this.dataList );
 
            
 
@@ -103,15 +117,10 @@
             let winHeight = document.documentElement.clientHeight;
             document.getElementById("leftNav").style.height= winHeight-46 +'px';
             // console.log( document.getElementById('list-div') );
-            // document.getElementById('list-div').style.height=winHeight-130 +'px';
+            let listView = document.getElementsByClassName("van-tabs__content")[0];
+            listView.style.height=winHeight-130 +'px';
+            listView.style.overflowY = "auto";
         },
-        // updated(){
-        //     // console.log("---- 状态更新后----");
-        //     // console.log( document.getElementById('list-div') );
-        //     let winHeight = document.documentElement.clientHeight;
-        //     document.getElementById('list-div').style.height=winHeight-130 +'px';
-            
-        // },
         methods: {
             onClickLeft(){  // 顶部栏返回按钮
                 this.$router.go(-1);
@@ -158,13 +167,13 @@
                         }
                         // console.log( this.categorySub );
                         // 默认初始加载商品列表页
-                        this.loadData(0,this.categorySub[0].MALL_SUB_NAME);
+                        this.loadData(0,this.categorySub[this.nowActive].MALL_SUB_NAME);
                     }else{
                         Toast('服务器错误，数据取得失败')
                     }  
                 })
                 .catch(error=>{
-                    console.log(error)
+                    console.log("服务器错误，请稍后再试")
                 }) 
             },
             getGoodsDetails(){ // 调用商品详情接口
@@ -181,8 +190,9 @@
 								this.dataList.push( res.data[obj] );
 							}							
                         }
+                        // console.log( "下拉更新：" + this.nowActive );
                         // console.log( this.dataList );
-                        // 
+                        this.loadData(0,this.categorySub[this.nowActive ].MALL_SUB_NAME);
 					}
 				)
 				.catch(
@@ -192,7 +202,7 @@
 				)                
             },
             loadData(index,title){
-                console.log( "----进入loadData函数----接收到的title值为："+title );
+                // console.log( "----进入loadData函数----接收到的title值为："+title );
                 // 数据初始化
                 this.list = [];
                 for( let obj in this.categorySub ){
@@ -200,20 +210,28 @@
                         this.GoodsID =  this.categorySub[obj].ID;
                     }
                 }
-                console.log( this.GoodsID );
-                console.log(  this.dataList.length );
-                console.log( "---------------------------------" );
+                // console.log( this.GoodsID );
+                // console.log(  this.dataList.length );
+                // console.log( "---------------------------------" );
                 // console.log("------- 对比开始 ------");
 				for( let obj in this.dataList ){
-                    console.log( "进入循环" );
-                    console.log("分类的ID----："+ this.GoodsID);
-                    console.log("目前的ID----："+ this.dataList[obj].SUB_ID );
+                    // console.log( "进入循环" );
+                    // console.log("分类的ID----："+ this.GoodsID);
+                    // console.log("目前的ID----："+ this.dataList[obj].SUB_ID );
 					if( this.GoodsID == this.dataList[obj].SUB_ID ){
 						this.list.push( this.dataList[obj] );
 					}
                 }
-                console.log( this.list );							
+                // console.log( this.list );							
               
+            },
+            goDetails(id){
+                this.$router.push({
+                    name: 'detail',
+                    params: {
+                        goodsId: id
+                    }
+                })
             },
             // onLoad(){  // 上拉加载
             //     this.loading = true;
@@ -290,7 +308,6 @@
 		width: 70%;
 		min-width: 70%;
 		line-height: 80px;
-		background: #ccc;
 	}
 	.list-item dd{
 		margin: 0;
@@ -313,9 +330,13 @@
 		line-height: 30px;
 		font-size: 0.6rem;
 	}
-    #list-div{
-        overflow-y: auto;
-    } 
+    .list-item dd .itemPrice span:nth-child(1){
+        text-decoration: line-through;
+        color: #ff0000;
+    }
+    /* .van-tabs__content--animated{
+        overflow-y: auto !important;
+    }  */
     #leftNav{
         border-right: 1px solid #e5e5e5;
     }

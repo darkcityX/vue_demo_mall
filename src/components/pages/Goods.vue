@@ -32,7 +32,7 @@
         <!-- 5、底部购物车 -->
         <div class="goods-bottom">
             <div>
-                <van-button size="large" type="primary">加入购物车</van-button>
+                <van-button size="large" type="primary" @click="addCart()">加入购物车</van-button>
             </div>
             <div>
                 <van-button size="large" type="danger">直接购买</van-button>
@@ -44,14 +44,16 @@
 <script>
     import axios from 'axios';
 
+    import { Toast } from 'vant'
+
     import Url from '@/serviceAPI.config.js';
 
-    import {toMoney} from '@/filter/moneyFilter.js' 
+    import {toMoney} from '@/filter/moneyFilter.js'; 
     export default {
         data () {
             return {
                 goodsId: '',
-                goodsInfo: {}
+                goodsInfo: []
             }
         },
         filters: {
@@ -61,10 +63,11 @@
         },
         created(){
             // 接收路由传过来的参数
-            this.goodsId = this.$route.query.goodsId
-            console.log("传过来的参数为：" + this.goodsId );
-
-
+            this.goodsId = 
+                this.$route.query.goodsId ? this.$route.query.goodsId 
+                    : this.$route.params.goodsId ? this.$route.params.goodsId 
+                    : localStorage.getItem("goodId");
+            localStorage.setItem("goodId",this.goodsId);
 
             // 调用商品详情接口
             this.getInfo();
@@ -100,6 +103,54 @@
             },
             onClickLeft(){
                 this.$router.go(-1);
+            },
+            addCart(){ // 向购物车中添加商品
+                // 首先判断登陆状态：已登录则继续，未登陆则跳转到登陆页面
+                if( localStorage.getItem("userInfo") ){
+                    // 判断localStorage购物车信息并取出
+                    let cartInfo = localStorage.cartInfo ? JSON.parse( localStorage.getItem("cartInfo") ) : [];
+
+                    // 判断购物车内是否有该商品 // undefined表示没有
+                    let isHaveGoods = cartInfo.find(cart=>cart.goodsId==this.goodsId);
+                    console.log( "购物车内是否有该商品：" + isHaveGoods );
+                    if( !isHaveGoods ){
+                        // 如果没有重组对象，存入本地
+                        let newGoodsInfo={
+                            goodsId:this.goodsInfo.ID,
+                            Name:this.goodsInfo.NAME,
+                            price:this.goodsInfo.PRESENT_PRICE,
+                            image:this.goodsInfo.IMAGE1,
+                            count:1
+                        } 
+                        cartInfo.push( newGoodsInfo ); 
+                        localStorage.cartInfo = JSON.stringify( cartInfo );  
+                        Toast({
+                            message : "添加成功！",
+                            type :  "success"
+                        });
+                        
+                    }else{
+                        Toast({
+                            message : "添加失败！购物车中已有该商品！",
+                            type: "fail"
+                        }); 
+                    }
+
+
+                }else{
+                    Toast({
+                        message: "还未登陆，请先登陆!",
+                        type: "fail",
+    					mask : false,
+						position : "middle",
+						forbidClick : true,
+						duration : 3000
+                    });
+                    const timer = setInterval(() => {
+                        this.$router.push('/login');
+						clearInterval(timer);
+					}, 3000);  
+                }
             }
         }
     }
