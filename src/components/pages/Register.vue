@@ -19,7 +19,7 @@
                 label="密码"
                 placeholder="请输入密码"
                 required/>
-                <router-link class="goLogin" to="/login">已有账号？去登陆</router-link>
+            <router-link class="goLogin" to="/login">已有账号？去登陆</router-link>
             <div class="register-button">
                 <van-button type="primary" size="normal" @click="axiosRegisterUser()">马上注册</van-button>
             </div>

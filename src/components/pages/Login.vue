@@ -25,7 +25,7 @@
 				@click-icon="password = ''"
 				required
 				:error-message="passwordErrorMsg"/>
-
+            <router-link class="goRegister" to="/register">还没账号？去注册</router-link>
 			<div class="login-button">
 				<van-button type="primary" @click="LoginAction" :loading="openLoading" size="normal">登陆</van-button>
 			</div>
@@ -216,4 +216,12 @@
 	.van-toast__text{
 		text-align: center;
 	}
+    .goRegister{
+        padding: 10px 0;
+        display: block;
+        color: #ff0000;
+        font-size: 16px;
+        text-align: right;
+        text-decoration: underline;
+    }
 </style>
