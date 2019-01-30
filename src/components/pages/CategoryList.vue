@@ -113,12 +113,12 @@
             
         },
         mounted(){
-            console.log("---- 挂载后 ----");
+            // console.log("---- 挂载后 ----");
             let winHeight = document.documentElement.clientHeight;
             document.getElementById("leftNav").style.height= winHeight-46 +'px';
             // console.log( document.getElementById('list-div') );
             let listView = document.getElementsByClassName("van-tabs__content")[0];
-            listView.style.height=winHeight-130 +'px';
+            listView.style.height=winHeight-140 +'px';
             listView.style.overflowY = "auto";
         },
         methods: {
@@ -173,7 +173,7 @@
                     }  
                 })
                 .catch(error=>{
-                    console.log("服务器错误，请稍后再试")
+                    console.error("服务器错误，请稍后再试")
                 }) 
             },
             getGoodsDetails(){ // 调用商品详情接口
@@ -197,7 +197,7 @@
 				)
 				.catch(
 					err=>{
-						console.log("服务器报错，数据未请求");
+						console.error("服务器报错，数据未请求");
 					}
 				)                
             },

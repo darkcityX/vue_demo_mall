@@ -135,8 +135,8 @@
             }).then(
                 res=>{
                     if( res.status == "200" ){
-                        console.log( '--------------------' );
-                        console.log( res.data);
+                        // console.log( '--------------------' );
+                        // console.log( res.data);
                         // 轮播
                         this.bannerPicArray = res.data.slides;
                         // 小导航
@@ -244,6 +244,9 @@
        font-size:14px;
        height: 1.8rem;
        line-height:1.8rem;
+    }
+    .hot-goods{
+        height: 135rem;
     }
 </style>
 

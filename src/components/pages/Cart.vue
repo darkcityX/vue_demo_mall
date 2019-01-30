@@ -56,7 +56,8 @@
             return {
                 isEmpty : false,  // 购物车是否为空： 不为空 true; 为空 false
                 cartInfo: [],     // 购物车列表
-                totalMoney: 0
+                // totalMoney: 0     // 总的商品总价
+                
             }
         },
         created(){
@@ -67,7 +68,17 @@
             moneyFilter(money){
                 return toMoney(money);
             }                 
-        },      
+        },   
+        computed:{
+            totalMoney(){
+                let allMoney = 0;
+                this.cartInfo.forEach((item,index) => {
+                    allMoney += item.price*item.count    
+                });
+                localStorage.cartInfo=JSON.stringify(this.cartInfo)
+                return allMoney;
+            }
+        },   
         methods:{
             onClickLeft(){ // 回退按钮函数
                 this.$router.back(-1);
@@ -136,16 +147,16 @@
 
     /* 底部按钮 */
     .cart-bottom{
-        position: fixed;
+        /* position: fixed;
         bottom:0px;
-        left:0px;
+        left:0px; */
         background-color: #f5f5f5;
         width:100%;
         display: flex;
         flex-direction: row;
         flex-flow: nowrap;
         border-top: 1px solid #e5e5e5;
-        box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);
+        /* box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2); */
     }
     .cart-bottom > div{
         flex:1;
